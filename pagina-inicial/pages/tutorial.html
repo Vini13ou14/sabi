@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <title>Tutorial</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <script>
+    (function(){
+      var salvo = null;
+      try { salvo = localStorage.getItem('tema'); } catch (e) {}
+      var claro = salvo ? salvo === 'claro' : matchMedia('(prefers-color-scheme: light)').matches;
+      document.documentElement.dataset.tema = claro ? 'claro' : 'escuro';
+    })();
+  </script>
+</head>
+<body>
+  <div class="app">
+    <header class="topo">
+      <button class="menu" id="abrirMenu" aria-label="Abrir menu" aria-controls="drawer" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <button class="login" id="login">fazer login com google</button>
+      <label class="switch" aria-label="Alternar modo claro/escuro">
+        <input type="checkbox" id="tema"><span class="knob"></span>
+      </label>
+    </header>
+
+    <div class="fundo-menu" id="fundoMenu" hidden></div>
+    <aside class="drawer" id="drawer" aria-label="Páginas" aria-hidden="true">
+      <div class="drawer-topo">
+        <h2>páginas</h2>
+        <button id="fecharMenu" aria-label="Fechar menu">X</button>
+      </div>
+      <nav>
+        <a href="../index.html">página inicial</a>
+        <a href="sistema.html">visualizar sistema</a>
+        <a href="tutorial.html">tutorial</a>
+        <a href="mesa.html">acessar mesa</a>
+        <a href="ficha.html">acessar ficha</a>
+      </nav>
+    </aside>
+
+    <main class="page-shell">
+      <h1>Tutorial</h1>
+      <p>Use esta área para apresentar instruções, passos e dicas de uso do sistema. O conteúdo pode ser expandido conforme o projeto cresce.</p>
+      <div class="page-grid">
+        <article class="card">
+          <h2>1. Acesso</h2>
+          <p>Entre no sistema usando o botão de login localizado no topo.</p>
+        </article>
+        <article class="card">
+          <h2>2. Navegação</h2>
+          <p>Use o menu lateral para acessar as páginas principais da aplicação.</p>
+        </article>
+        <article class="card">
+          <h2>3. Prática</h2>
+          <p>Explore os módulos e confirme cada ação antes de finalizar o processo.</p>
+        </article>
+      </div>
+    </main>
+  </div>
+  <script src="../js/script.js"></script>
+</body>
+</html>

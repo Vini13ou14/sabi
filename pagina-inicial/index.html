@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>Página inicial</title>
+<link rel="stylesheet" href="css/style.css">
+<script>
+  /* Aplica o tema antes de renderizar (evita piscar): escolha salva ou sistema */
+  (function(){
+    var salvo = null;
+    try { salvo = localStorage.getItem('tema'); } catch(e){}
+    var claro = salvo ? salvo === 'claro' : matchMedia('(prefers-color-scheme: light)').matches;
+    document.documentElement.dataset.tema = claro ? 'claro' : 'escuro';
+  })();
+</script>
+</head>
+<body>
+<div class="app">
+  <header class="topo">
+    <button class="menu" id="abrirMenu" aria-label="Abrir menu" aria-controls="drawer" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <button class="login" id="login">fazer login com google</button>
+    <label class="switch" aria-label="Alternar modo claro/escuro">
+      <input type="checkbox" id="tema"><span class="knob"></span>
+    </label>
+  </header>
+
+  <!-- Menu lateral: só aparece ao clicar no botão de menu -->
+  <div class="fundo-menu" id="fundoMenu" hidden></div>
+  <aside class="drawer" id="drawer" aria-label="Páginas" aria-hidden="true">
+    <div class="drawer-topo">
+      <h2>páginas</h2>
+      <button id="fecharMenu" aria-label="Fechar menu">X</button>
+    </div>
+    <nav>
+      <a href="index.html">página inicial</a>
+      <a href="pages/sistema.html">visualizar sistema</a>
+      <a href="pages/tutorial.html">tutorial</a>
+      <a href="pages/mesa.html">acessar mesa</a>
+      <a href="pages/ficha.html">acessar ficha</a>
+    </nav>
+  </aside>
+
+  <section class="mapa" aria-label="Mapa do mundo">
+    <!-- MAPA: coloque sua imagem em img/Capturar.PNG -->
+    <img class="img-mapa" src="img/Capturar.PNG" alt="Mapa do mundo">
+    <button class="expandir" id="abrirMapa" aria-label="Abrir mapa em tela cheia">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+    </button>
+  </section>
+
+  <!-- Mapa em tela cheia -->
+  <div class="mapa-cheio" id="mapaCheio" role="dialog" aria-modal="true" aria-label="Mapa em tela cheia" hidden>
+    <div class="mapa-ferramentas">
+      <button id="zoomMais" aria-label="Aproximar">+</button>
+      <button id="zoomMenos" aria-label="Afastar">−</button>
+      <button id="zoomReset" aria-label="Restaurar">1:1</button>
+      <button id="fecharMapa" aria-label="Fechar mapa">X</button>
+    </div>
+    <img id="imgCheia" src="img/Capturar.PNG" alt="Mapa do mundo" draggable="false">
+  </div>
+
+  <main class="acoes">
+    <button class="btn roxo" data-acao="sistema">visualizar sistema</button>
+    <button class="btn azul" data-acao="tutorial">acessar tutorial do sistema</button>
+    <button class="btn azul" data-acao="mesa">acessar mesa</button>
+    <button class="btn roxo" data-acao="ficha">acessar ficha</button>
+  </main>
+
+  <section class="comentarios">
+    <h2>comentários</h2>
+    <div class="caixa">
+      <div class="lista-comentarios" id="caixa" aria-live="polite"></div>
+      <form class="form-comentario" id="formComentario">
+        <label class="sr-only" for="novoComentario">Escreva um comentário</label>
+        <textarea id="novoComentario" placeholder="Escreva seu comentário..." rows="2" required></textarea>
+        <button type="submit">publicar</button>
+      </form>
+    </div>
+  </section>
+</div>
+<script src="js/script.js"></script>
+</body>
+</html>

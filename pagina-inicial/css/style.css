@@ -1,0 +1,425 @@
+/* ===== Tema (mobile-first) ===== */
+:root {
+  color-scheme: dark;
+  --fundo: #071522;
+  --texto: #edf4fb;
+  --texto-suave: #b4c4d4;
+  --superficie: #102438;
+  --superficie-alta: #18334b;
+  --borda: #31516b;
+  --topo-a: #102c48;
+  --topo-b: #251d50;
+  --roxo: #8548d8;
+  --azul: #176e91;
+  --rosa: #b63c9e;
+  --drawer: #13283b;
+  --agua: #123c68;
+  --panel: #102438;
+  --campo: #0b1b2b;
+  --placeholder: #b4c4d4;
+  --trilho: #263e52;
+  --sombra: 0 12px 32px rgba(0, 0, 0, 0.22);
+  --foco: #ffd166;
+}
+
+:root[data-tema="claro"] {
+  color-scheme: light;
+  --fundo: #f2f6fb;
+  --texto: #17283b;
+  --texto-suave: #53677d;
+  --superficie: #ffffff;
+  --superficie-alta: #e8eff7;
+  --borda: #cbd8e5;
+  --topo-a: #dcecff;
+  --topo-b: #e9e2fb;
+  --roxo: #6840ad;
+  --azul: #176b8e;
+  --rosa: #a52e89;
+  --drawer: #ffffff;
+  --agua: #c7dcf2;
+  --panel: #ffffff;
+  --campo: #f8fbff;
+  --placeholder: #65788d;
+  --trilho: #d7e1ec;
+  --sombra: 0 12px 32px rgba(34, 61, 89, 0.12);
+  --foco: #8a5200;
+}
+
+* { box-sizing: border-box; margin: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  font-family: Inter, system-ui, sans-serif;
+  background: var(--fundo);
+  color: var(--texto);
+  min-height: 100dvh;
+  transition: background-color .2s ease, color .2s ease;
+}
+button { font: inherit; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--foco); outline-offset: 2px; }
+
+.app {
+  width: 100%;
+  min-height: 100dvh;
+  background: var(--fundo);
+  position: relative;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== Topo ===== */
+.topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  height: 80px;
+  padding: 0 12px;
+  background: linear-gradient(115deg, var(--topo-a), var(--topo-b));
+  box-shadow: var(--sombra);
+}
+.menu {
+  background: none;
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+  padding: 6px;
+}
+.menu span {
+  width: 36px;
+  height: 8px;
+  border-radius: 6px;
+  background: var(--roxo);
+}
+.login {
+  background: var(--rosa);
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  border: 2px solid var(--borda);
+  border-radius: 30px;
+  padding: 12px 14px;
+  text-decoration: underline;
+  cursor: pointer;
+  min-width: 0;
+}
+.switch {
+  position: relative;
+  flex: none;
+  width: 58px;
+  height: 30px;
+  border: 2px solid var(--roxo);
+  border-radius: 20px;
+  background: var(--trilho);
+  cursor: pointer;
+}
+.switch input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  cursor: pointer;
+}
+.knob {
+  position: absolute;
+  top: 1px;
+  left: 2px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  transition: left .2s;
+  pointer-events: none;
+}
+.switch input:checked + .knob { left: 28px; }
+.switch:has(input:focus-visible) { outline: 3px solid var(--foco); }
+
+/* ===== Menu lateral ===== */
+.fundo-menu {
+  position: fixed;
+  inset: 0;
+  background: #0008;
+  z-index: 9;
+}
+.drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: min(78vw, 300px);
+  background: var(--drawer);
+  color: var(--texto);
+  z-index: 10;
+  padding: 16px 14px;
+  box-shadow: var(--sombra);
+  transform: translateX(-105%);
+  transition: transform .25s ease;
+  visibility: hidden;
+}
+.drawer.aberto {
+  transform: none;
+  visibility: visible;
+}
+.drawer-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 26px;
+}
+.drawer-topo h2 {
+  font-size: 20px;
+  font-weight: 400;
+}
+.drawer-topo button {
+  background: none;
+  border: 0;
+  color: var(--texto);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+.drawer nav {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.drawer a {
+  color: var(--texto);
+  text-decoration: none;
+  font-size: 17px;
+  padding: 8px 10px;
+  border-radius: 10px;
+}
+.drawer a:hover {
+  background: var(--superficie-alta);
+  text-decoration: none;
+}
+
+/* ===== Mapa ===== */
+.mapa {
+  position: relative;
+  height: clamp(180px, 55vw, 260px);
+  background: var(--agua);
+  overflow: hidden;
+}
+.img-mapa {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.expandir {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 10px;
+  background: #000a;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+/* ===== Mapa em tela cheia ===== */
+.mapa-cheio {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: #000;
+  overflow: hidden;
+  touch-action: none;
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mapa-cheio[hidden] { display: none; }
+.mapa-cheio.arrastando { cursor: grabbing; }
+.mapa-cheio img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transform-origin: center;
+  user-select: none;
+  -webkit-user-drag: none;
+  will-change: transform;
+}
+.mapa-ferramentas {
+  position: absolute;
+  top: calc(10px + env(safe-area-inset-top));
+  right: 10px;
+  display: flex;
+  gap: 8px;
+  z-index: 2;
+}
+.mapa-ferramentas button {
+  min-width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 10px;
+  background: #fffd;
+  color: #000;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* ===== Ações ===== */
+.acoes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 24px 16px 10px;
+}
+.btn {
+  height: 88px;
+  border: 1px solid var(--borda);
+  border-radius: 28px;
+  color: #fff;
+  font-size: 16px;
+  padding: 0 12px;
+  cursor: pointer;
+}
+.btn:active { transform: scale(.97); }
+.roxo { background: var(--roxo); }
+.azul { background: var(--azul); }
+
+/* ===== Comentários ===== */
+.comentarios {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 32px 0;
+  text-align: center;
+  width: 100%;
+  margin: 0 auto;
+}
+.comentarios h2 {
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+.caixa {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: 28px 28px 0 0;
+  min-height: 200px;
+  padding: 14px;
+  text-align: left;
+  color: var(--texto);
+}
+.form-comentario {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 16px;
+}
+.form-comentario textarea {
+  flex: 1;
+  width: 100%;
+  min-height: 64px;
+  padding: 10px 12px;
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  background: var(--campo);
+  color: var(--texto);
+  font: inherit;
+  resize: vertical;
+}
+.form-comentario textarea::placeholder { color: var(--placeholder); }
+.form-comentario button {
+  border: 0;
+  border-radius: 18px;
+  padding: 8px 16px;
+  background: var(--roxo);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+.form-comentario button:hover { filter: brightness(1.1); }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.lista-comentarios p + p { margin-top: 12px; }
+
+/* ===== Páginas internas ===== */
+.page-shell {
+  max-width: 980px;
+  margin: 32px auto;
+  padding: 24px;
+  border-radius: 26px;
+  background: var(--panel);
+  border: 1px solid var(--borda);
+  box-shadow: var(--sombra);
+}
+.page-shell h1 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  margin-bottom: 12px;
+}
+.page-shell p {
+  line-height: 1.6;
+  margin-bottom: 10px;
+  color: var(--texto-suave);
+}
+.page-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+  margin-top: 20px;
+}
+.card {
+  background: var(--superficie-alta);
+  border: 1px solid var(--borda);
+  border-radius: 18px;
+  padding: 18px;
+}
+.card h2 {
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+}
+.card a {
+  display: inline-block;
+  margin-top: 8px;
+  color: var(--roxo);
+  text-decoration: none;
+}
+
+/* ===== Telas maiores ===== */
+@media (min-width: 600px) {
+  .login { font-size: 15px; padding: 14px 20px; }
+  .mapa { height: clamp(220px, 38vh, 380px); }
+  .btn { height: 100px; font-size: 18px; }
+  .acoes { padding: 28px 32px 12px; }
+}
+@media (min-width: 1024px) {
+  .topo { height: 90px; padding: 0 32px; }
+  .mapa { height: clamp(260px, 45vh, 520px); }
+  .acoes {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    padding: 32px 48px 16px;
+  }
+  .btn { height: 110px; }
+  .comentarios { max-width: none; padding: 12px 32px 0; }
+  .page-shell { padding: 32px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
