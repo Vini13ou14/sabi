@@ -4,7 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#102c48">
   <title>Mesa</title>
+  <link rel="manifest" href="/manifest.webmanifest">
   <link rel="stylesheet" href="../css/style.css">
   <script>
     (function(){
@@ -16,12 +18,12 @@
   </script>
 </head>
 <body>
-  <div class="app">
+  <div class="app pagina-mesa">
     <header class="topo">
       <button class="menu" id="abrirMenu" aria-label="Abrir menu" aria-controls="drawer" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
-      <button class="login" id="login">fazer login com google</button>
+      <button class="login" id="login" type="button">entrar / criar conta</button>
       <label class="switch" aria-label="Alternar modo claro/escuro">
         <input type="checkbox" id="tema"><span class="knob"></span>
       </label>
@@ -37,30 +39,57 @@
         <a href="../index.html">página inicial</a>
         <a href="sistema.html">visualizar sistema</a>
         <a href="tutorial.html">tutorial</a>
-        <a href="mesa.html">acessar mesa</a>
+        <a href="mesa.html" aria-current="page">acessar mesa</a>
         <a href="ficha.html">acessar ficha</a>
       </nav>
     </aside>
 
-    <main class="page-shell">
-      <h1>Acessar mesa</h1>
-      <p>Esta página é um ponto de entrada para a mesa de trabalho, podendo concentrar tarefas, listas e atividades do dia a dia.</p>
-      <div class="page-grid">
-        <article class="card">
-          <h2>Atividades</h2>
-          <p>Lista de ações em andamento e pendências do grupo ou do usuário.</p>
-        </article>
-        <article class="card">
-          <h2>Agenda</h2>
-          <p>Agenda e prazos referentes às tarefas cadastradas.</p>
-        </article>
-        <article class="card">
-          <h2>Resumo do dia</h2>
-          <p>Resumo rápido do status das tarefas e dos próximos passos.</p>
-        </article>
+    <main class="mesa-pagina">
+      <h1 class="mesa-titulo">criação e geração de mesas</h1>
+      <hr class="mesa-linha">
+
+      <div class="mesa-acoes">
+        <button type="button" class="mesa-entrar" id="entrar" disabled>solicitar entrada</button>
+        <button type="button" class="mesa-nova" id="novaMesa">
+          criar nova mesa <span class="mais" aria-hidden="true">+</span>
+        </button>
       </div>
+
+      <section class="mesa-painel" aria-labelledby="tituloMesas">
+        <h2 id="tituloMesas">suas mesas</h2>
+        <ul class="mesa-lista" id="listaMinhasMesas"></ul>
+      </section>
+
+      <section class="mesa-painel" aria-labelledby="tituloSolicitacoes">
+        <h2 id="tituloSolicitacoes">solicitações recebidas</h2>
+        <ul class="mesa-lista" id="listaSolicitacoes"></ul>
+      </section>
+
+      <section class="mesa-painel" aria-labelledby="tituloBuscaMesas">
+        <h2 id="tituloBuscaMesas">encontrar mesas</h2>
+        <div class="mesa-busca">
+          <label for="buscarMesa">buscar pelo ID exato ou parte do nome</label>
+          <input id="buscarMesa" type="search" autocomplete="off" placeholder="ID ou nome da mesa">
+          <small>Pesquise as mesas compartilhadas pelo ID completo ou por parte do nome.</small>
+        </div>
+        <ul class="mesa-lista" id="listaMesas"></ul>
+      </section>
     </main>
+
+    <dialog class="mesa-dialog" id="dlgMesa" aria-labelledby="tituloDlg">
+      <form id="formMesa">
+        <h2 id="tituloDlg">nova mesa</h2>
+        <label for="nomeMesa">nome da mesa</label>
+        <input id="nomeMesa" maxlength="60" autocomplete="off" required>
+        <div class="mesa-dialog-botoes">
+          <button type="button" id="cancelarMesa">cancelar</button>
+          <button type="submit">criar</button>
+        </div>
+      </form>
+    </dialog>
+    <div class="mesa-aviso" id="avisoMesa" role="status" aria-live="polite"></div>
   </div>
   <script src="../js/script.js"></script>
+  <script src="../js/mesa.js"></script>
 </body>
 </html>

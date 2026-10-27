@@ -1,6 +1,13 @@
 const $ = s => document.querySelector(s);
 const raiz = document.documentElement;
 
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .catch(error => console.error('Não foi possível habilitar o modo offline.', error));
+  });
+}
+
 /* ===== Tema: sistema do usuário + escolha manual salva ===== */
 const chkTema = $('#tema');
 const mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
@@ -51,14 +58,144 @@ document.addEventListener('keydown', e => {
   if (drawer && e.key === 'Escape' && drawer.classList.contains('aberto')) menu(false);
 });
 
-/* ===== Login (simulado: troque pelo Google Identity Services) ===== */
+/* ===== Conta ===== */
 const botaoLogin = $('#login');
 if (botaoLogin) {
-  botaoLogin.addEventListener('click', e => {
-    const b = e.currentTarget;
-    const logado = b.dataset.logado === '1';
-    b.dataset.logado = logado ? '0' : '1';
-    b.textContent = logado ? 'fazer login com google' : 'sair da conta';
+  let usuarioAtual = null;
+  const dialogoConta = document.createElement('dialog');
+  dialogoConta.className = 'conta-dialog';
+  dialogoConta.setAttribute('aria-labelledby', 'tituloDialogoConta');
+  dialogoConta.innerHTML = `
+    <div class="conta-dialog-topo">
+      <h2 id="tituloDialogoConta">Sua conta</h2>
+      <button type="button" class="conta-dialog-fechar" aria-label="Fechar">×</button>
+    </div>
+    <div class="conta-abas" role="tablist" aria-label="Acesso à conta">
+      <button type="button" class="conta-aba ativa" id="abaLogin" role="tab" aria-selected="true">entrar</button>
+      <button type="button" class="conta-aba" id="abaCadastro" role="tab" aria-selected="false">criar conta</button>
+    </div>
+    <form class="conta-dialog-form" id="formDialogoLogin">
+      <label for="dialogoEmailLogin">e-mail</label>
+      <input id="dialogoEmailLogin" type="email" autocomplete="username" maxlength="254" required>
+      <label for="dialogoSenhaLogin">senha</label>
+      <input id="dialogoSenhaLogin" type="password" autocomplete="current-password" maxlength="128" required>
+      <button type="submit">entrar</button>
+      <p class="conta-dialog-erro" role="alert"></p>
+    </form>
+    <form class="conta-dialog-form" id="formDialogoCadastro" hidden>
+      <label for="dialogoNomeCadastro">nome</label>
+      <input id="dialogoNomeCadastro" autocomplete="name" maxlength="60" required>
+      <label for="dialogoEmailCadastro">e-mail</label>
+      <input id="dialogoEmailCadastro" type="email" autocomplete="email" maxlength="254" required>
+      <label for="dialogoSenhaCadastro">senha (mínimo 12 caracteres)</label>
+      <input id="dialogoSenhaCadastro" type="password" autocomplete="new-password" minlength="12" maxlength="128" required>
+      <button type="submit">criar conta</button>
+      <p class="conta-dialog-erro" role="alert"></p>
+    </form>
+  `;
+  document.body.appendChild(dialogoConta);
+  const formularioLogin = $('#formDialogoLogin');
+  const formularioCadastro = $('#formDialogoCadastro');
+  const botaoAbaLogin = $('#abaLogin');
+  const botaoAbaCadastro = $('#abaCadastro');
+
+  function selecionarAba(modo) {
+    const cadastro = modo === 'cadastro';
+    formularioLogin.hidden = cadastro;
+    formularioCadastro.hidden = !cadastro;
+    botaoAbaLogin.classList.toggle('ativa', !cadastro);
+    botaoAbaCadastro.classList.toggle('ativa', cadastro);
+    botaoAbaLogin.setAttribute('aria-selected', String(!cadastro));
+    botaoAbaCadastro.setAttribute('aria-selected', String(cadastro));
+    dialogoConta.querySelector(`#formDialogo${cadastro ? 'Cadastro' : 'Login'} input`).focus();
+  }
+
+  async function enviarFormulario(formulario, rota, dados) {
+    const enviar = formulario.querySelector('button[type="submit"]');
+    const erro = formulario.querySelector('.conta-dialog-erro');
+    enviar.disabled = true;
+    erro.textContent = '';
+    try {
+      const response = await fetch(rota, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dados)
+      });
+      const resultado = await response.json();
+      if (!response.ok) throw new Error(resultado.error || 'Não foi possível concluir a operação.');
+      usuarioAtual = resultado.user;
+      botaoLogin.textContent = `sair (${usuarioAtual.name})`;
+      dialogoConta.close();
+      window.location.reload();
+    } catch (error) {
+      erro.textContent = error.message;
+    } finally {
+      enviar.disabled = false;
+    }
+  }
+
+  botaoLogin.textContent = 'entrar / criar conta';
+
+  if (location.protocol !== 'file:') {
+    fetch('/api/me', { credentials: 'same-origin' })
+      .then(async response => {
+        const resultado = await response.json();
+        if (!response.ok) throw new Error(resultado.error || 'Não foi possível verificar a conta.');
+        usuarioAtual = resultado.user;
+        botaoLogin.textContent = usuarioAtual ? `sair (${usuarioAtual.name})` : 'entrar / criar conta';
+      })
+      .catch(error => {
+        console.error('Não foi possível verificar a conta.', error);
+        botaoLogin.title = 'Não foi possível conectar ao servidor de contas.';
+      });
+  }
+
+  $('#abaLogin').addEventListener('click', () => selecionarAba('login'));
+  $('#abaCadastro').addEventListener('click', () => selecionarAba('cadastro'));
+  $('.conta-dialog-fechar').addEventListener('click', () => dialogoConta.close());
+  dialogoConta.addEventListener('click', event => {
+    if (event.target === dialogoConta) dialogoConta.close();
+  });
+  formularioLogin.addEventListener('submit', event => {
+    event.preventDefault();
+    enviarFormulario(formularioLogin, '/api/login', {
+      email: $('#dialogoEmailLogin').value,
+      password: $('#dialogoSenhaLogin').value
+    });
+  });
+  formularioCadastro.addEventListener('submit', event => {
+    event.preventDefault();
+    enviarFormulario(formularioCadastro, '/api/register', {
+      name: $('#dialogoNomeCadastro').value,
+      email: $('#dialogoEmailCadastro').value,
+      password: $('#dialogoSenhaCadastro').value
+    });
+  });
+
+  botaoLogin.addEventListener('click', async () => {
+    if (!usuarioAtual) {
+      selecionarAba('login');
+      dialogoConta.showModal();
+      return;
+    }
+    botaoLogin.disabled = true;
+    try {
+      const response = await fetch('/api/logout', {
+        method: 'POST',
+        credentials: 'same-origin'
+      });
+      const resultado = await response.json();
+      if (!response.ok) throw new Error(resultado.error || 'Não foi possível sair da conta.');
+      usuarioAtual = null;
+      botaoLogin.textContent = 'entrar / criar conta';
+      window.location.reload();
+    } catch (error) {
+      console.error('Não foi possível sair da conta.', error);
+      alert(error.message);
+    } finally {
+      botaoLogin.disabled = false;
+    }
   });
 }
 
@@ -154,7 +291,13 @@ if (cheio && imgCheia && abrirMapaBtn) {
     } else if (pontos.size === 2) {
       pontos.set(e.pointerId, atual);
       const [a, b] = [...pontos.values()];
-      setZoom(zoomIni * Math.hypot(a.x - b.x, a.y - b.y) / distIni);
+      const distancia = Math.hypot(a.x - b.x, a.y - b.y);
+      if (distIni === 0 && distancia > 0) {
+        distIni = distancia;
+        zoomIni = zoom;
+      } else if (distIni > 0) {
+        setZoom(zoomIni * distancia / distIni);
+      }
       return;
     }
     pontos.set(e.pointerId, atual);

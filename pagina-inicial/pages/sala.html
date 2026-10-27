@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#102c48">
+  <title>Mesa</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="../css/style.css">
+  <script>
+    (function(){
+      var salvo = null;
+      try { salvo = localStorage.getItem('tema'); } catch (e) {}
+      var claro = salvo ? salvo === 'claro' : matchMedia('(prefers-color-scheme: light)').matches;
+      document.documentElement.dataset.tema = claro ? 'claro' : 'escuro';
+    })();
+  </script>
+</head>
+<body>
+  <div class="app">
+    <header class="topo">
+      <a class="sala-voltar" href="mesa.html">← suas mesas</a>
+      <button class="login" id="login" type="button">entrar / criar conta</button>
+      <label class="switch" aria-label="Alternar modo claro/escuro">
+        <input type="checkbox" id="tema"><span class="knob"></span>
+      </label>
+    </header>
+
+    <main class="sala-pagina">
+      <section class="sala-cartao" aria-labelledby="salaNome">
+        <h1 id="salaNome">carregando mesa…</h1>
+        <dl class="sala-detalhes">
+          <div>
+            <dt>criador</dt>
+            <dd id="salaCriador">—</dd>
+          </div>
+          <div>
+            <dt>quantidade de membros</dt>
+            <dd id="salaQuantidade">—</dd>
+          </div>
+          <div class="sala-id-linha">
+            <dt>ID da mesa (código para compartilhar)</dt>
+            <dd>
+              <code id="salaId">—</code>
+              <button type="button" class="mesa-acao-secundaria" id="copiarId">copiar ID</button>
+            </dd>
+          </div>
+        </dl>
+
+        <section class="sala-participantes" aria-labelledby="tituloParticipantes">
+          <h2 id="tituloParticipantes">participantes</h2>
+          <ul id="listaParticipantes" class="sala-lista"></ul>
+        </section>
+      </section>
+      <p class="sala-aviso" id="salaAviso" role="status" aria-live="polite"></p>
+    </main>
+  </div>
+  <script src="../js/script.js"></script>
+  <script src="../js/sala.js"></script>
+</body>
+</html>

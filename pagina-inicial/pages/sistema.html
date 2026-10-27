@@ -4,7 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#102c48">
   <title>Sistema</title>
+  <link rel="manifest" href="/manifest.webmanifest">
   <link rel="stylesheet" href="../css/style.css">
   <script>
     (function(){
@@ -21,7 +23,7 @@
       <button class="menu" id="abrirMenu" aria-label="Abrir menu" aria-controls="drawer" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
-      <button class="login" id="login">fazer login com google</button>
+      <button class="login" id="login" type="button">entrar / criar conta</button>
       <label class="switch" aria-label="Alternar modo claro/escuro">
         <input type="checkbox" id="tema"><span class="knob"></span>
       </label>
@@ -42,25 +44,13 @@
       </nav>
     </aside>
 
-    <main class="page-shell">
-      <h1>Visualizar sistema</h1>
-      <p>Esta página representa o painel principal do sistema, onde os usuários podem consultar informações relevantes, navegação e ações rápidas do ambiente.</p>
-      <div class="page-grid">
-        <article class="card">
-          <h2>Resumo</h2>
-          <p>Visão geral do estado atual do sistema e funcionalidades disponíveis.</p>
-        </article>
-        <article class="card">
-          <h2>Controle</h2>
-          <p>Operações de configuração, suporte e manutenção do ambiente.</p>
-        </article>
-        <article class="card">
-          <h2>Contexto</h2>
-          <p>Dados e histórico para decisões rápidas e gerenciamento de fluxo.</p>
-        </article>
-      </div>
+    <main class="page-shell regras-page">
+      <h1>Guia do sistema</h1>
+      <p>Clique em uma categoria para exibir as informações. Os textos de exemplo podem ser alterados depois no arquivo <code>js/regras.js</code>.</p>
+      <div class="regras-lista" id="regrasLista" aria-label="Categorias de regras"></div>
     </main>
   </div>
   <script src="../js/script.js"></script>
+  <script src="../js/regras.js"></script>
 </body>
 </html>

@@ -1,0 +1,19 @@
+{
+  "name": "Sabi - Mesas",
+  "short_name": "Sabi",
+  "description": "Mesas, membros e solicitações salvos no dispositivo.",
+  "lang": "pt-BR",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#071522",
+  "theme_color": "#102c48",
+  "icons": [
+    {
+      "src": "/img/app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
