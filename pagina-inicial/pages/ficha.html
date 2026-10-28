@@ -38,31 +38,58 @@
       <nav>
         <a href="../index.html">página inicial</a>
         <a href="sistema.html">visualizar sistema</a>
-        <a href="tutorial.html">tutorial</a>
+        <a href="loja.html">loja</a>
         <a href="mesa.html">acessar mesa</a>
-        <a href="ficha.html">acessar ficha</a>
+        <a href="ficha.html" aria-current="page">acessar ficha</a>
       </nav>
     </aside>
 
-    <main class="page-shell">
-      <h1>Acessar ficha</h1>
-      <p>Uma ficha é o espaço para registrar dados, informações detalhadas e pontos importantes do setor ou do processo em questão.</p>
-      <div class="page-grid">
-        <article class="card">
-          <h2>Dados</h2>
-          <p>Informações primárias e campos de registro do cadastro.</p>
-        </article>
-        <article class="card">
-          <h2>Observações</h2>
-          <p>Notas e detalhes relevantes para acompanhar o contexto.</p>
-        </article>
-        <article class="card">
-          <h2>Histórico</h2>
-          <p>Registro do progresso e de interações anteriores.</p>
-        </article>
-      </div>
+    <main class="ficha-pagina">
+      <header class="ficha-titulo">
+        <h1>visualização de fichas</h1>
+      </header>
+
+      <section class="ficha-painel" aria-label="Suas fichas">
+        <div class="ficha-acoes">
+          <button type="button" class="criar-ficha-btn" id="abrirCriacaoFicha" disabled>
+            <span>criar nova ficha</span>
+            <span class="ficha-mais" aria-hidden="true">+</span>
+          </button>
+        </div>
+        <p class="ficha-aviso" id="avisoFichas" role="status" aria-live="polite">Carregando suas fichas…</p>
+        <a class="ficha-aviso-link" id="linkMesasFicha" href="mesa.html" hidden>criar ou encontrar uma mesa</a>
+        <ul class="ficha-lista" id="listaFichas" aria-label="Lista de fichas"></ul>
+      </section>
     </main>
+
+    <dialog class="ficha-dialog" id="dialogoFicha" aria-labelledby="tituloDialogoFicha">
+      <form id="formFicha">
+        <h2 id="tituloDialogoFicha">criar nova ficha</h2>
+        <label for="nomeFicha">nome da ficha</label>
+        <input id="nomeFicha" name="nome" maxlength="60" required>
+        <fieldset class="ficha-mesas">
+          <legend>mesas vinculadas (escolha pelo menos uma)</legend>
+          <div class="ficha-mesas-opcoes" id="opcoesMesasFicha">
+            <span>carregando suas mesas…</span>
+          </div>
+          <small>As fichas ficarão disponíveis somente nas mesas que você selecionar.</small>
+          <a href="mesa.html">criar ou encontrar uma mesa</a>
+        </fieldset>
+        <label for="rpgFicha">rpg / sistema</label>
+        <input id="rpgFicha" name="rpg" maxlength="60">
+        <label for="racaFicha">raça</label>
+        <input id="racaFicha" name="raca" maxlength="60">
+        <label for="classeFicha">classe</label>
+        <input id="classeFicha" name="classe" maxlength="60">
+        <p class="ficha-form-aviso" id="avisoFormularioFicha" role="alert"></p>
+        <div class="ficha-dialog-acoes">
+          <button type="button" id="cancelarFicha">cancelar</button>
+          <button type="submit">criar ficha</button>
+        </div>
+      </form>
+    </dialog>
   </div>
   <script src="../js/script.js"></script>
+  <script src="../js/fichas.js"></script>
 </body>
 </html>

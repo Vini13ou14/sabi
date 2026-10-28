@@ -8,15 +8,20 @@
   let avisoTimer;
 
   async function api(url, options = {}) {
-    const response = await fetch(url, {
-      credentials: 'same-origin',
-      ...options,
-      headers: {
-        ...(options.body ? { 'Content-Type': 'application/json' } : {}),
-        ...options.headers
-      }
-    });
-    const result = await response.json();
+    let response;
+    try {
+      response = await fetch(url, {
+        credentials: 'same-origin',
+        ...options,
+        headers: {
+          ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+          ...options.headers
+        }
+      });
+    } catch {
+      throw new Error('Não foi possível conectar ao servidor. Verifique se o Sabi está em execução.');
+    }
+    const result = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(result.error || 'Não foi possível concluir a operação.');
     return result;
   }
@@ -37,7 +42,7 @@
       const nome = document.createElement('strong');
       nome.textContent = participante.name;
       const papel = document.createElement('small');
-      papel.textContent = participante.role === 'dono' ? 'criador' : 'jogador';
+      papel.textContent = participante.role === 'dono' ? 'criador' : 'membro';
       info.append(nome, papel);
       item.appendChild(info);
 
@@ -74,6 +79,8 @@
     $('#salaQuantidade').textContent = String(mesa.members_count);
     $('#salaId').textContent = mesa.id;
     document.title = `${mesa.name} · Sabi`;
+    $('#sairMesa').hidden = mesa.role === 'dono';
+    $('#excluirMesa').hidden = mesa.role !== 'dono';
     renderizarParticipantes(mesa);
   }
 
@@ -84,6 +91,35 @@
     } catch (error) {
       console.error('Não foi possível copiar o ID da mesa.', error);
       mostrarAviso('Não foi possível copiar automaticamente. Selecione o ID para copiá-lo.');
+    }
+  });
+
+  $('#sairMesa').addEventListener('click', async () => {
+    if (!confirm('Sair desta mesa? Suas fichas serão desvinculadas dela.')) return;
+    const botaoSair = $('#sairMesa');
+    botaoSair.disabled = true;
+    try {
+      const { user } = await api('/api/me');
+      await api(`/api/mesas/${encodeURIComponent(mesaId)}/membros/${encodeURIComponent(user.id)}`, {
+        method: 'DELETE'
+      });
+      location.href = 'mesa.html';
+    } catch (error) {
+      mostrarAviso(error.message);
+      botaoSair.disabled = false;
+    }
+  });
+
+  $('#excluirMesa').addEventListener('click', async () => {
+    if (!confirm('Excluir esta mesa para todos? Participantes, pedidos e vínculos das fichas serão removidos. Esta ação não pode ser desfeita.')) return;
+    const botaoExcluir = $('#excluirMesa');
+    botaoExcluir.disabled = true;
+    try {
+      await api(`/api/mesas/${encodeURIComponent(mesaId)}`, { method: 'DELETE' });
+      location.href = 'mesa.html';
+    } catch (error) {
+      mostrarAviso(error.message);
+      botaoExcluir.disabled = false;
     }
   });
 

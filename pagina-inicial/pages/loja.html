@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#102c48">
+  <title>Loja</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="../css/style.css">
+  <script>
+    (function(){
+      var salvo = null;
+      try { salvo = localStorage.getItem('tema'); } catch (e) {}
+      var claro = salvo ? salvo === 'claro' : matchMedia('(prefers-color-scheme: light)').matches;
+      document.documentElement.dataset.tema = claro ? 'claro' : 'escuro';
+    })();
+  </script>
+</head>
+<body>
+  <div class="app">
+    <header class="topo">
+      <button class="menu" id="abrirMenu" aria-label="Abrir menu" aria-controls="drawer" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <button class="login" id="login" type="button">entrar / criar conta</button>
+      <label class="switch" aria-label="Alternar modo claro/escuro">
+        <input type="checkbox" id="tema"><span class="knob"></span>
+      </label>
+    </header>
+
+    <div class="fundo-menu" id="fundoMenu" hidden></div>
+    <aside class="drawer" id="drawer" aria-label="Páginas" aria-hidden="true">
+      <div class="drawer-topo">
+        <h2>páginas</h2>
+        <button id="fecharMenu" aria-label="Fechar menu">X</button>
+      </div>
+      <nav>
+        <a href="../index.html">página inicial</a>
+        <a href="sistema.html">visualizar sistema</a>
+        <a href="loja.html" aria-current="page">loja</a>
+        <a href="mesa.html">acessar mesa</a>
+        <a href="ficha.html">acessar ficha</a>
+      </nav>
+    </aside>
+
+    <main class="loja-pagina">
+      <header class="loja-cabecalho">
+        <h1>página da loja</h1>
+      </header>
+      <section class="loja-painel" aria-label="Categorias da loja">
+        <nav class="loja-categorias" id="categoriasLoja" aria-label="Categorias">
+          <button type="button" class="loja-categoria" aria-pressed="false">habilidades</button>
+          <button type="button" class="loja-categoria" aria-pressed="false">perícias</button>
+          <button type="button" class="loja-categoria" aria-pressed="false">traços</button>
+          <button type="button" class="loja-categoria" aria-pressed="false">poderes</button>
+          <button type="button" class="loja-categoria" aria-pressed="false">itens</button>
+          <button type="button" class="loja-categoria" aria-pressed="false">origens</button>
+        </nav>
+        <section class="loja-conteudo" id="conteudoLoja" aria-live="polite">
+          <p>selecione uma categoria para ver os produtos</p>
+        </section>
+      </section>
+    </main>
+  </div>
+  <script src="../js/script.js"></script>
+  <script src="../js/loja.js"></script>
+</body>
+</html>

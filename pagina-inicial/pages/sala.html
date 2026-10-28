@@ -20,14 +20,32 @@
 <body>
   <div class="app">
     <header class="topo">
-      <a class="sala-voltar" href="mesa.html">← suas mesas</a>
+      <button class="menu" id="abrirMenu" aria-label="Abrir menu" aria-controls="drawer" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
       <button class="login" id="login" type="button">entrar / criar conta</button>
       <label class="switch" aria-label="Alternar modo claro/escuro">
         <input type="checkbox" id="tema"><span class="knob"></span>
       </label>
     </header>
 
+    <div class="fundo-menu" id="fundoMenu" hidden></div>
+    <aside class="drawer" id="drawer" aria-label="Páginas" aria-hidden="true">
+      <div class="drawer-topo">
+        <h2>páginas</h2>
+        <button id="fecharMenu" aria-label="Fechar menu">X</button>
+      </div>
+      <nav>
+        <a href="../index.html">página inicial</a>
+        <a href="sistema.html">visualizar sistema</a>
+        <a href="loja.html">loja</a>
+        <a href="mesa.html" aria-current="page">acessar mesa</a>
+        <a href="ficha.html">acessar ficha</a>
+      </nav>
+    </aside>
+
     <main class="sala-pagina">
+      <a class="sala-voltar" href="mesa.html">← suas mesas</a>
       <section class="sala-cartao" aria-labelledby="salaNome">
         <h1 id="salaNome">carregando mesa…</h1>
         <dl class="sala-detalhes">
@@ -53,6 +71,10 @@
           <ul id="listaParticipantes" class="sala-lista"></ul>
         </section>
       </section>
+      <div class="sala-acoes">
+        <button type="button" class="mesa-acao-secundaria" id="sairMesa" hidden>sair da mesa</button>
+        <button type="button" class="mesa-acao-secundaria" id="excluirMesa" hidden>excluir mesa</button>
+      </div>
       <p class="sala-aviso" id="salaAviso" role="status" aria-live="polite"></p>
     </main>
   </div>

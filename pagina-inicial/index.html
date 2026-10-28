@@ -40,7 +40,7 @@
     <nav>
       <a href="index.html">página inicial</a>
       <a href="pages/sistema.html">visualizar sistema</a>
-      <a href="pages/tutorial.html">tutorial</a>
+      <a href="pages/loja.html">loja</a>
       <a href="pages/mesa.html">acessar mesa</a>
       <a href="pages/ficha.html">acessar ficha</a>
     </nav>
@@ -67,7 +67,7 @@
 
   <main class="acoes">
     <button class="btn roxo" data-acao="sistema">visualizar sistema</button>
-    <button class="btn azul" data-acao="tutorial">acessar tutorial do sistema</button>
+    <button class="btn azul" data-acao="loja">acessar loja</button>
     <button class="btn azul" data-acao="mesa">acessar mesa</button>
     <button class="btn roxo" data-acao="ficha">acessar ficha</button>
   </main>
@@ -78,8 +78,8 @@
       <div class="lista-comentarios" id="caixa" aria-live="polite"></div>
       <form class="form-comentario" id="formComentario">
         <label class="sr-only" for="novoComentario">Escreva um comentário</label>
-        <textarea id="novoComentario" placeholder="Escreva seu comentário..." rows="2" required></textarea>
-        <button type="submit">publicar</button>
+        <textarea id="novoComentario" placeholder="Escreva seu comentário (salvo apenas neste navegador)..." rows="2" maxlength="500" required></textarea>
+        <button type="submit">salvar</button>
       </form>
     </div>
   </section>

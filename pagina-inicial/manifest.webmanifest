@@ -1,7 +1,7 @@
 {
   "name": "Sabi - Mesas",
   "short_name": "Sabi",
-  "description": "Mesas, membros e solicitações salvos no dispositivo.",
+  "description": "Mesas, fichas, membros e solicitações em um servidor local.",
   "lang": "pt-BR",
   "start_url": "/",
   "scope": "/",
@@ -13,7 +13,7 @@
       "src": "/img/app-icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ]
 }

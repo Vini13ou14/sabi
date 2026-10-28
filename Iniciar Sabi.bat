@@ -3,8 +3,9 @@ setlocal
 set "APP_DIR=%~dp0pagina-inicial"
 set "APP_URL=http://127.0.0.1:3000"
 
-powershell -NoProfile -ExecutionPolicy Bypass -Command "try { $response = Invoke-WebRequest -UseBasicParsing -Uri '%APP_URL%/api/me' -TimeoutSec 2; if ($response.StatusCode -eq 200 -and $response.Headers['X-Sabi-App'] -eq 'Sabi') { exit 0 } } catch { exit 1 }; exit 1" >nul 2>nul
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$response = $null; try { $response = Invoke-WebRequest -UseBasicParsing -Uri '%APP_URL%/api/status' -TimeoutSec 2; $status = $response.Content | ConvertFrom-Json; if ($response.StatusCode -eq 200 -and $response.Headers['X-Sabi-App'] -eq 'Sabi' -and $status.features -contains 'fichas') { exit 0 } } catch {}; try { $response = Invoke-WebRequest -UseBasicParsing -Uri '%APP_URL%/api/me' -TimeoutSec 2; if ($response.StatusCode -eq 200 -and $response.Headers['X-Sabi-App'] -eq 'Sabi') { exit 2 } } catch {}; exit 1" >nul 2>nul
 if not errorlevel 1 goto abrir
+if errorlevel 2 goto servidorAntigo
 
 where node >nul 2>nul
 if errorlevel 1 (
@@ -35,3 +36,9 @@ if errorlevel 1 (
 :abrir
 start "" "%APP_URL%"
 exit /b 0
+
+:servidorAntigo
+echo O servidor Sabi aberto esta desatualizado e ainda nao tem suporte a fichas.
+echo Feche a janela antiga "Sabi - servidor local" e execute este arquivo novamente.
+pause
+exit /b 1

@@ -20,15 +20,20 @@
   let numeroBusca = 0;
 
   async function api(url, options = {}) {
-    const response = await fetch(url, {
-      credentials: 'same-origin',
-      ...options,
-      headers: {
-        ...(options.body ? { 'Content-Type': 'application/json' } : {}),
-        ...options.headers
-      }
-    });
-    const result = await response.json();
+    let response;
+    try {
+      response = await fetch(url, {
+        credentials: 'same-origin',
+        ...options,
+        headers: {
+          ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+          ...options.headers
+        }
+      });
+    } catch {
+      throw new Error('Não foi possível conectar ao servidor. Verifique se o Sabi está em execução.');
+    }
+    const result = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(result.error || 'Não foi possível concluir a operação.');
     return result;
   }
@@ -161,6 +166,9 @@
     }
 
     if (!mesas.some(mesa => mesa.id === selecionada)) selecionada = null;
+    const idFocado = document.activeElement && document.activeElement.dataset
+      ? document.activeElement.dataset.mesaId
+      : null;
     lista.replaceChildren();
     mesas.forEach(mesa => {
       const item = document.createElement('li');
@@ -169,13 +177,11 @@
       card.type = 'button';
       card.className = 'mesa-card';
       card.setAttribute('aria-pressed', String(mesa.id === selecionada));
-      card.append(
-        criarTexto('strong', mesa.name),
-        criarTexto('small', `ID: ${mesa.id}`),
-        criarTexto('small', `criada em ${new Date(mesa.created_at).toLocaleDateString('pt-BR')}`)
-      );
-      if (mesa.is_member) card.appendChild(criarTexto('small', 'Você já faz parte desta mesa.'));
-      else if (mesa.request_pending) card.appendChild(criarTexto('small', 'Solicitação pendente.'));
+      card.textContent = mesa.name;
+      card.dataset.mesaId = mesa.id;
+      if (mesa.last_request_status === 'rejected' && !mesa.is_member && !mesa.request_pending) {
+        card.appendChild(criarTexto('small', 'seu último pedido foi rejeitado'));
+      }
       card.addEventListener('click', () => {
         selecionada = mesa.id;
         renderizarMesas(mesasEncontradas);
@@ -183,6 +189,11 @@
       item.appendChild(card);
       lista.appendChild(item);
     });
+    if (idFocado) {
+      const cartaoFocado = [...lista.querySelectorAll('.mesa-card')]
+        .find(cartao => cartao.dataset.mesaId === idFocado);
+      if (cartaoFocado) cartaoFocado.focus();
+    }
     atualizarBotaoEntrar();
   }
 
@@ -234,8 +245,8 @@
         body: JSON.stringify({ name })
       });
       dlg.close();
-      busca.value = mesa.id;
-      selecionada = mesa.id;
+      busca.value = '';
+      selecionada = null;
       mostrarAviso(`Mesa criada. ID para compartilhar: ${mesa.id}`);
       await carregarPainel();
     } catch (error) {
@@ -259,6 +270,16 @@
     }
   });
 
+  let atualizador;
+
+  function iniciarAtualizacao() {
+    clearInterval(atualizador);
+    atualizador = setInterval(() => {
+      if (document.hidden || dlg.open) return;
+      carregarPainel().catch(() => {});
+    }, 15000);
+  }
+
   async function iniciar() {
     try {
       const { user } = await api('/api/me');
@@ -273,6 +294,7 @@
         return;
       }
       await carregarPainel();
+      iniciarAtualizacao();
     } catch (error) {
       mostrarAviso(`Não foi possível conectar ao servidor: ${error.message}`);
       $('#novaMesa').disabled = true;

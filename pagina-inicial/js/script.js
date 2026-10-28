@@ -122,14 +122,14 @@ if (botaoLogin) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dados)
       });
-      const resultado = await response.json();
+      const resultado = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(resultado.error || 'Não foi possível concluir a operação.');
       usuarioAtual = resultado.user;
       botaoLogin.textContent = `sair (${usuarioAtual.name})`;
       dialogoConta.close();
       window.location.reload();
     } catch (error) {
-      erro.textContent = error.message;
+      erro.textContent = error instanceof TypeError ? 'Não foi possível conectar ao servidor. Verifique se o Sabi está em execução.' : error.message;
     } finally {
       enviar.disabled = false;
     }
@@ -138,9 +138,10 @@ if (botaoLogin) {
   botaoLogin.textContent = 'entrar / criar conta';
 
   if (location.protocol !== 'file:') {
+    botaoLogin.disabled = true;
     fetch('/api/me', { credentials: 'same-origin' })
       .then(async response => {
-        const resultado = await response.json();
+        const resultado = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(resultado.error || 'Não foi possível verificar a conta.');
         usuarioAtual = resultado.user;
         botaoLogin.textContent = usuarioAtual ? `sair (${usuarioAtual.name})` : 'entrar / criar conta';
@@ -148,6 +149,9 @@ if (botaoLogin) {
       .catch(error => {
         console.error('Não foi possível verificar a conta.', error);
         botaoLogin.title = 'Não foi possível conectar ao servidor de contas.';
+      })
+      .finally(() => {
+        botaoLogin.disabled = false;
       });
   }
 
@@ -175,8 +179,8 @@ if (botaoLogin) {
 
   botaoLogin.addEventListener('click', async () => {
     if (!usuarioAtual) {
-      selecionarAba('login');
       dialogoConta.showModal();
+      selecionarAba('login');
       return;
     }
     botaoLogin.disabled = true;
@@ -185,14 +189,14 @@ if (botaoLogin) {
         method: 'POST',
         credentials: 'same-origin'
       });
-      const resultado = await response.json();
+      const resultado = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(resultado.error || 'Não foi possível sair da conta.');
       usuarioAtual = null;
       botaoLogin.textContent = 'entrar / criar conta';
       window.location.reload();
     } catch (error) {
       console.error('Não foi possível sair da conta.', error);
-      alert(error.message);
+      alert(error instanceof TypeError ? 'Não foi possível conectar ao servidor. Verifique se o Sabi está em execução.' : error.message);
     } finally {
       botaoLogin.disabled = false;
     }
@@ -210,7 +214,14 @@ if (cheio && imgCheia && abrirMapaBtn) {
   let distIni = 0, zoomIni = 1;
 
   function desenhar() {
-    if (zoom <= 1) { px = 0; py = 0; }
+    if (zoom <= 1) {
+      px = 0; py = 0;
+    } else {
+      const limiteX = imgCheia.clientWidth * (zoom - 1) / 2;
+      const limiteY = imgCheia.clientHeight * (zoom - 1) / 2;
+      px = Math.max(-limiteX, Math.min(limiteX, px));
+      py = Math.max(-limiteY, Math.min(limiteY, py));
+    }
     imgCheia.style.transform = `translate(${px}px, ${py}px) scale(${zoom})`;
   }
 
@@ -264,7 +275,10 @@ if (cheio && imgCheia && abrirMapaBtn) {
     setZoom(zoom + (e.deltaY < 0 ? 0.3 : -0.3));
   }, { passive: false });
 
-  imgCheia.addEventListener('dblclick', () => setZoom(zoom > 1 ? 1 : 2.5));
+  cheio.addEventListener('dblclick', e => {
+    if (e.target.closest('.mapa-ferramentas')) return;
+    setZoom(zoom > 1 ? 1 : 2.5);
+  });
 
   cheio.addEventListener('pointerdown', e => {
     if (e.target.closest('.mapa-ferramentas')) return;
@@ -315,7 +329,7 @@ if (cheio && imgCheia && abrirMapaBtn) {
 /* ===== Botões principais ===== */
 const rotas = {
   sistema: 'pages/sistema.html',
-  tutorial: 'pages/tutorial.html',
+  loja: 'pages/loja.html',
   mesa: 'pages/mesa.html',
   ficha: 'pages/ficha.html'
 };
@@ -332,7 +346,10 @@ const formComentario = $('#formComentario');
 const novoComentario = $('#novoComentario');
 if (caixa && formComentario && novoComentario) {
   let salvos = [];
-  try { salvos = JSON.parse(localStorage.getItem('comentarios') || '[]'); } catch (e) {}
+  try {
+    const lidos = JSON.parse(localStorage.getItem('comentarios') || '[]');
+    if (Array.isArray(lidos)) salvos = lidos.filter(texto => typeof texto === 'string').slice(-100);
+  } catch (e) {}
 
   const mostrar = texto => {
     const p = document.createElement('p');
@@ -343,11 +360,13 @@ if (caixa && formComentario && novoComentario) {
   salvos.forEach(mostrar);
   formComentario.addEventListener('submit', e => {
     e.preventDefault();
-    const texto = novoComentario.value.trim();
+    const texto = novoComentario.value.trim().slice(0, 500);
     if (!texto) return;
     salvos.push(texto);
+    if (salvos.length > 100) salvos = salvos.slice(-100);
     try { localStorage.setItem('comentarios', JSON.stringify(salvos)); } catch (e) {}
     mostrar(texto);
+    while (caixa.children.length > 100) caixa.firstElementChild.remove();
     formComentario.reset();
     novoComentario.focus();
   });

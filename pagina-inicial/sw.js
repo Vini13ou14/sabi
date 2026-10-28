@@ -1,7 +1,12 @@
 'use strict';
 
-const STATIC_CACHE = 'sabi-static-v7';
-const PAGE_CACHE = 'sabi-pages-v7';
+/*
+ * Estratégia: rede primeiro, cache como reserva.
+ * Online, sempre vem a versão mais recente dos arquivos (HTML, JS e CSS andam juntos).
+ * Offline, usa a última cópia guardada. Não é mais necessário subir a versão do cache
+ * a cada alteração; mude CACHE apenas se quiser descartar tudo o que foi guardado.
+ */
+const CACHE = 'sabi-v22';
 const APP_ASSETS = [
   '/',
   '/index.html',
@@ -9,8 +14,10 @@ const APP_ASSETS = [
   '/pages/mesa.html',
   '/pages/sala.html',
   '/pages/sistema.html',
-  '/pages/tutorial.html',
+  '/pages/loja.html',
   '/css/style.css',
+  '/js/fichas.js',
+  '/js/loja.js',
   '/js/mesa.js',
   '/js/regras.js',
   '/js/sala.js',
@@ -22,8 +29,8 @@ const APP_ASSETS = [
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(STATIC_CACHE)
-      .then(cache => cache.addAll(APP_ASSETS))
+    caches.open(CACHE)
+      .then(cache => cache.addAll(APP_ASSETS.map(url => new Request(url, { cache: 'reload' }))))
       .then(() => self.skipWaiting())
   );
 });
@@ -33,7 +40,7 @@ self.addEventListener('activate', event => {
     caches.keys()
       .then(keys => Promise.all(
         keys
-          .filter(key => key.startsWith('sabi-') && key !== STATIC_CACHE && key !== PAGE_CACHE)
+          .filter(key => key.startsWith('sabi-') && key !== CACHE)
           .map(key => caches.delete(key))
       ))
       .then(() => self.clients.claim())
@@ -45,33 +52,21 @@ self.addEventListener('fetch', event => {
   const url = new URL(request.url);
   if (request.method !== 'GET' || url.origin !== self.location.origin || url.pathname.startsWith('/api/')) return;
 
-  if (request.mode === 'navigate') {
-    event.respondWith((async () => {
-      try {
-        const response = await fetch(request);
-        if (response.ok) {
-          const cache = await caches.open(PAGE_CACHE);
-          await cache.put(request, response.clone());
-        }
-        return response;
-      } catch {
-        return (await caches.match(request)) ||
-          (await caches.match(url.pathname)) ||
-          (await caches.match('/index.html'));
-      }
-    })());
-    return;
-  }
+  const navegacao = request.mode === 'navigate';
+  // Páginas são guardadas só pelo caminho, para que sala.html?id=... não gere uma cópia por mesa.
+  const chave = navegacao ? url.pathname : request;
 
   event.respondWith((async () => {
-    const cached = await caches.match(request);
-    if (cached) return cached;
-
-    const response = await fetch(request);
-    if (response.ok) {
-      const cache = await caches.open(STATIC_CACHE);
-      await cache.put(request, response.clone());
+    const cache = await caches.open(CACHE);
+    try {
+      const response = await fetch(request);
+      if (response.ok) cache.put(chave, response.clone()).catch(() => {});
+      return response;
+    } catch (error) {
+      const guardado = await cache.match(chave) ||
+        (navegacao ? await cache.match('/index.html') : undefined);
+      if (guardado) return guardado;
+      throw error;
     }
-    return response;
   })());
 });
